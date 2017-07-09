@@ -13,6 +13,7 @@ const Quadrant = require('../models/quadrant');
 const Ring = require('../models/ring');
 const Blip = require('../models/blip');
 const GraphingRadar = require('../graphing/radar');
+const QueryParams = require('./queryParamProcessor');
 const MalformedDataError = require('../exceptions/malformedDataError');
 const SheetNotFoundError = require('../exceptions/sheetNotFoundError');
 const ContentValidator = require('./contentValidator');
@@ -60,10 +61,13 @@ const GoogleSheet = function (sheetReference, sheetName) {
                 .html(message);
         }
 
+        function isNotHidden(blip) {
+            return blip.isHidden != "TRUE";
+        }
+
         function createRadar(__, tabletop) {
 
             try {
-
                 if (!sheetName) {
                     sheetName = tabletop.foundSheetNames[0];
                 }
@@ -75,8 +79,9 @@ const GoogleSheet = function (sheetReference, sheetName) {
 
                 var all = tabletop.sheets(sheetName).all();
                 var blips = _.map(all, new InputSanitizer().sanitize);
+                blips = blips.filter(isNotHidden);
 
-                document.title = tabletop.googleSheetName;
+                document.title = `${tabletop.googleSheetName} - ${sheetName}`;
                 d3.selectAll(".loading").remove();
 
                 var rings = _.map(_.uniqBy(blips, 'ring'), 'ring');
@@ -102,6 +107,12 @@ const GoogleSheet = function (sheetReference, sheetName) {
                 _.each(quadrants, function (quadrant) {
                     radar.addQuadrant(quadrant)
                 });
+
+                tabletop.foundSheetNames.forEach(function(sheetName) {
+                    radar.addAlternative(sheetName);
+                });
+
+                radar.setCurrentSheet(sheetName)
 
                 var size = (window.innerHeight - 133) < 620 ? 620 : window.innerHeight - 133;
 
@@ -133,21 +144,6 @@ const GoogleSheet = function (sheetReference, sheetName) {
     };
 
     return self;
-};
-
-var QueryParams = function (queryString) {
-    var decode = function (s) {
-        return decodeURIComponent(s.replace(/\+/g, " "));
-    };
-
-    var search = /([^&=]+)=?([^&]*)/g;
-
-    var queryParams = {};
-    var match;
-    while (match = search.exec(queryString))
-        queryParams[decode(match[1])] = decode(match[2]);
-
-    return queryParams
 };
 
 
