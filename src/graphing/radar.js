@@ -539,12 +539,12 @@ const Radar = function (size, radar) {
       if (alternative !== currentSheet) {
         alternativeDiv
         .append('div')
-          .attr('class', `button first full-view alternative`)
+          .attr('class', 'button first full-view alternative')
           .text(alternative)
           .on('click', function(){
             var noParamUrl = window.location.href.substring(0,window.location.href.indexOf(window.location.search));
             var queryParams = QueryParams(window.location.search.substring(1));
-            window.location = `${noParamUrl}?sheetId=${queryParams.sheetId}&sheetName=${encodeURIComponent(alternative)}`;
+            window.location = noParamUrl + '?sheetId=' + queryParams.sheetId + '&sheetName=' + encodeURIComponent(alternative);
           });
       }
     });

@@ -81,7 +81,7 @@ const GoogleSheet = function (sheetReference, sheetName) {
                 var blips = _.map(all, new InputSanitizer().sanitize);
                 blips = blips.filter(isNotHidden);
 
-                document.title = `${tabletop.googleSheetName} - ${sheetName}`;
+                document.title = tabletop.googleSheetName + ' - ' + sheetName;
                 d3.selectAll(".loading").remove();
 
                 var rings = _.map(_.uniqBy(blips, 'ring'), 'ring');
